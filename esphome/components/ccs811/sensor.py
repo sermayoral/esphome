@@ -5,14 +5,17 @@ from esphome.const import (
     CONF_ID,
     DEVICE_CLASS_EMPTY,
     ICON_RADIATOR,
+    ICON_RESTART,
     STATE_CLASS_MEASUREMENT,
     UNIT_PARTS_PER_MILLION,
     UNIT_PARTS_PER_BILLION,
     CONF_BASELINE,
     CONF_ECO2,
+    UNIT_EMPTY,
     CONF_TEMPERATURE,
     CONF_TVOC,
     CONF_HUMIDITY,
+    CONF_VERSION,
     ICON_MOLECULE_CO2,
 )
 
@@ -41,6 +44,13 @@ CONFIG_SCHEMA = (
                 DEVICE_CLASS_EMPTY,
                 STATE_CLASS_MEASUREMENT,
             ),
+            cv.Optional(CONF_VERSION): sensor.sensor_schema(
+                UNIT_EMPTY,
+                ICON_RESTART,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
             cv.Optional(CONF_BASELINE): cv.hex_uint16_t,
             cv.Optional(CONF_TEMPERATURE): cv.use_id(sensor.Sensor),
             cv.Optional(CONF_HUMIDITY): cv.use_id(sensor.Sensor),
@@ -60,6 +70,9 @@ async def to_code(config):
     cg.add(var.set_co2(sens))
     sens = await sensor.new_sensor(config[CONF_TVOC])
     cg.add(var.set_tvoc(sens))
+    if CONF_VERSION in config:
+        sens = await sensor.new_sensor(config[CONF_VERSION])
+        cg.add(var.set_version(sens))
 
     if CONF_BASELINE in config:
         cg.add(var.set_baseline(config[CONF_BASELINE]))
