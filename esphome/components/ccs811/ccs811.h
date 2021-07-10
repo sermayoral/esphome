@@ -34,7 +34,7 @@ class CCS811Component : public PollingComponent, public i2c::I2CDevice {
 
   enum ErrorCode {
     UNKNOWN,
-    COMMUNICAITON_FAILED,
+    COMMUNICATION_FAILED,
     INVALID_ID,
     SENSOR_REPORTED_ERROR,
     APP_INVALID,

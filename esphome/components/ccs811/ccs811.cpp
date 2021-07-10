@@ -16,7 +16,7 @@ static const char *const TAG = "ccs811";
     return; \
   }
 
-#define CHECKED_IO(f) CHECK_TRUE(f, COMMUNICAITON_FAILED)
+#define CHECKED_IO(f) CHECK_TRUE(f, COMMUNICATION_FAILED)
 
 void CCS811Component::setup() {
   // page 9 programming guide - hwid is always 0x81
@@ -124,7 +124,7 @@ void CCS811Component::dump_config() {
   }
   if (this->is_failed()) {
     switch (this->error_code_) {
-      case COMMUNICAITON_FAILED:
+      case COMMUNICATION_FAILED:
         ESP_LOGW(TAG, "Communication failed! Is the sensor connected?");
         break;
       case INVALID_ID:
