@@ -53,6 +53,33 @@ void CCS811Component::setup() {
     // baseline available, write to sensor
     this->write_bytes(0x11, decode_uint16(*this->baseline_));
   }
+
+  auto hardware_version_data = this->read_bytes<1>(0x21);
+  auto bootloader_version_data = this->read_bytes<2>(0x23);
+  auto application_version_data = this->read_bytes<2>(0x24);
+
+  uint8_t hardware_version=0;
+  uint16_t bootloader_version=0;
+  uint16_t application_version=0;
+
+  if (hardware_version_data.has_value()) {
+    hardware_version = (*hardware_version_data)[0];
+  }
+
+  if (bootloader_version_data.has_value()) {
+    bootloader_version = encode_uint16((*bootloader_version_data)[0], (*bootloader_version_data)[1]);
+  }
+
+  if (application_version_data.has_value()) {
+    application_version = encode_uint16((*application_version_data)[0], (*application_version_data)[1]);
+  }
+
+  ESP_LOGD(TAG, "hardware_version=0x%x bootloader_version=0x%x application_version=0x%x\n", hardware_version, bootloader_version, application_version);
+  if (this->version_ != nullptr)
+    this->version_->publish_state(((application_version>>12 & 15) * 1000) +   // convert to human readable decimals
+                                  ((application_version>>8 & 15) * 100) +
+                                  ((application_version>>4 & 15) * 10) +
+                                   (application_version&15));
 }
 void CCS811Component::update() {
   if (!this->status_has_data_())
@@ -77,36 +104,6 @@ void CCS811Component::update() {
   }
 
   ESP_LOGD(TAG, "Got co2=%u ppm, tvoc=%u ppb, baseline=0x%04X", co2, tvoc, baseline);
-
-  auto hardware_version_data = this->read_bytes<1>(0x21);
-  auto bootloader_version_data = this->read_bytes<2>(0x23);
-  auto application_version_data = this->read_bytes<2>(0x24);
-
-  uint8_t hardware_version=0;
-  uint16_t bootloader_version=0;
-  uint16_t application_version=0;
-
-  // using warning status as an indication that we are freshly booted, or perhaps the CCS811 was reconnected or replaced
-  if (this->status_has_warning()) {
-    if (hardware_version_data.has_value()) {
-      hardware_version = (*hardware_version_data)[0];
-    }
-
-    if (bootloader_version_data.has_value()) {
-      bootloader_version = encode_uint16((*bootloader_version_data)[0], (*bootloader_version_data)[1]);
-    }
-
-    if (application_version_data.has_value()) {
-      application_version = encode_uint16((*application_version_data)[0], (*application_version_data)[1]);
-    }
-
-    ESP_LOGD(TAG, "hardware_version=0x%x bootloader_version=0x%x application_version=0x%x\n", hardware_version, bootloader_version, application_version);
-    if (this->version_ != nullptr)
-      this->version_->publish_state(((application_version>>12 & 15) * 1000) +   // convert to human readable decimals
-                                    ((application_version>>8 & 15) * 100) +
-                                    ((application_version>>4 & 15) * 10) +
-                                     (application_version&15));
-  }
 
   if (this->co2_ != nullptr)
     this->co2_->publish_state(co2);
