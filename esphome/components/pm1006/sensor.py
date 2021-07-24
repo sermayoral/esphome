@@ -7,7 +7,7 @@ from esphome.const import (
     DEVICE_CLASS_EMPTY,
     STATE_CLASS_MEASUREMENT,
     UNIT_MICROGRAMS_PER_CUBIC_METER,
-    ICON_BLUR,
+    ICON_CHEMICAL_WEAPON,
 )
 
 DEPENDENCIES = ["uart"]
@@ -22,7 +22,7 @@ CONFIG_SCHEMA = cv.All(
             cv.GenerateID(): cv.declare_id(PM1006Component),
             cv.Optional(CONF_PM_2_5): sensor.sensor_schema(
                 UNIT_MICROGRAMS_PER_CUBIC_METER,
-                ICON_BLUR,
+                ICON_CHEMICAL_WEAPON,
                 0,
                 DEVICE_CLASS_EMPTY,
                 STATE_CLASS_MEASUREMENT,
